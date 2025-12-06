@@ -176,39 +176,99 @@
 
 
         <!-- Modelo 1: Hubble -->
-        <a-entity gltf-model="#hubbleModel" position="-5 1.5 -5" scale="0.0003 0.0003 0.0003" class="interactive"
-            data-title="Hubble Space Telescope"
-            data-description="O telescópio espacial Hubble revolucionou nossa visão do universo, revelando galáxias distantes e estruturas cósmicas."
-            animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+        <a-entity position="-5 0 -5">
+            <!-- Pedestal -->
+            <a-box position="0 0.5 0" width="1.2" height="1" depth="1.2" color="#2c3e50" roughness="0.5"></a-box>
+            <a-box position="0 1.2 0" width="1" height="0.2" depth="1" color="#34495e" roughness="0.3"></a-box>
+
+            <!-- Modelo -->
+            <a-entity gltf-model="#hubbleModel" position="0 2 0" scale="0.0003 0.0003 0.0003" class="interactive"
+                data-title="Hubble Space Telescope"
+                data-description="O telescópio espacial Hubble revolucionou nossa visão do universo, revelando galáxias distantes e estruturas cósmicas."
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+            </a-entity>
+
+            <!-- Placa de identificação -->
+            <a-plane position="0 0.2 0.61" width="1" height="0.3" color="#ecf0f1" roughness="0.4"
+                rotation="0 0 0"></a-plane>
+            <a-text value="🔭 Hubble" position="0 0.2 0.61" align="center" anchor="center" color="#2c3e50"
+                scale="1 1 1"></a-text>
         </a-entity>
-        <a-cylinder obb-collider position="-5 0.5 -5" radius="0.5" height="1" color="#cccccc"
-            roughness="0.7"></a-cylinder>
 
         <!-- Modelo 2: JWST -->
-        <a-entity gltf-model="#jwstModel" position="0 1.5 -5" scale="0.05 0.05 0.05" class="interactive"
-            data-title="James Webb Space Telescope"
-            data-description="O telescópio espacial mais avançado, observando o universo em infravermelho para detectar as galáxias mais antigas."
-            animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear">
+        <a-entity position="0 0 -5">
+            <!-- Pedestal -->
+            <a-box position="0 0.5 0" width="1.2" height="1" depth="1.2" color="#2c3e50" roughness="0.5"></a-box>
+            <a-box position="0 1.2 0" width="1" height="0.2" depth="1" color="#34495e" roughness="0.3"></a-box>
+
+            <!-- Modelo -->
+            <a-entity gltf-model="#jwstModel" position="0 2 0" scale="0.05 0.05 0.05" class="interactive"
+                data-title="James Webb Space Telescope"
+                data-description="O telescópio espacial mais avançado, observando o universo em infravermelho para detectar as galáxias mais antigas."
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"
+                material="emissive: #333333; emissiveIntensity: 0.5">
+            </a-entity>
+
+            <!-- Placa de identificação -->
+            <a-plane position="0 0.2 0.61" width="1" height="0.3" color="#ecf0f1" roughness="0.4"
+                rotation="0 0 0"></a-plane>
+            <a-text value="🛰️ James Webb" position="0 0.2 0.61" align="center" anchor="center" color="#2c3e50"
+                scale="0.7 0.7 0.61"></a-text>
         </a-entity>
-        <a-cylinder position="0 0.5 -5" radius="0.5" height="1" color="#cccccc" roughness="0.7"></a-cylinder>
 
         <!-- Modelo 3: Saturn V -->
-        <a-entity gltf-model="#saturnVModel" position="5 1.5 -5" scale="0.3 0.3 0.3" class="interactive"
-            data-title="Saturn V Rocket"
-            data-description="O foguete mais poderoso já construído, levou os astronautas à Lua durante o programa Apollo."
-            animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear">
+        <a-entity position="5 0 -5">
+            <!-- Pedestal -->
+            <a-box position="0 0.5 0" width="1.2" height="1" depth="1.2" color="#2c3e50" roughness="0.5"></a-box>
+            <a-box position="0 1.2 0" width="1" height="0.2" depth="1" color="#34495e" roughness="0.3"></a-box>
+
+            <!-- Modelo -->
+            <a-entity gltf-model="#saturnVModel" position="0 2 0" scale="0.3 0.3 0.3" class="interactive"
+                data-title="Saturn V Rocket"
+                data-description="O foguete mais poderoso já construído, levou os astronautas à Lua durante o programa Apollo."
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear">
+            </a-entity>
+
+            <!-- Placa de identificação -->
+            <a-plane position="0 0.2 0.61" width="1" height="0.3" color="#ecf0f1" roughness="0.4"
+                rotation="0 0 0"></a-plane>
+            <a-text value="🚀 Saturn V" position="0 0.2 0.61" align="center" anchor="center" color="#2c3e50"
+                scale="1 1 1"></a-text>
         </a-entity>
-        <a-cylinder position="5 0.5 -5" radius="0.5" height="1" color="#cccccc" roughness="0.7"></a-cylinder>
 
         <!-- Modelo 4: ISS -->
-        <a-entity gltf-model="#issModel" position="-5 1.5 0" scale="0.1 0.1 0.1" class="interactive"
-            data-title="International Space Station"
-            data-description="A estação espacial mais importante da história, onde astronautas de vários países trabalham em pesquisa científica."
-            animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear">
-        </a-entity>
-        <a-cylinder position="-5 0.5 0" radius="0.5" height="1" color="#cccccc" roughness="0.7"></a-cylinder>
+        <a-entity position="-5 0 0">
+            <!-- Pedestal -->
+            <a-box position="0 0.5 0" width="1.2" height="1" depth="1.2" color="#2c3e50" roughness="0.5"></a-box>
+            <a-box position="0 1.2 0" width="1" height="0.2" depth="1" color="#34495e" roughness="0.3"></a-box>
 
-        <a-cylinder position="5 0.5 0" radius="0.5" height="1" color="#cccccc" roughness="0.7"></a-cylinder>
+            <!-- Modelo -->
+            <a-entity gltf-model="#issModel" position="0 2 0" scale="0.1 0.1 0.1" class="interactive"
+                data-title="International Space Station"
+                data-description="A estação espacial mais importante da história, onde astronautas de vários países trabalham em pesquisa científica."
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear">
+            </a-entity>
+
+            <!-- Placa de identificação -->
+            <a-plane position="0.61 0.2 0" width="1" height="0.3" color="#ecf0f1" roughness="0.4"
+                rotation="0 90 0"></a-plane>
+
+            <a-text value="🌍 ISS" position="0.61 0.2 0" align="center" anchor="center" color="#2c3e50" scale="1 1 1"
+                rotation="0 90 0"></a-text>
+        </a-entity>
+
+        <!-- Modelo 5: (Espaço para outro modelo) -->
+        <a-entity position="5 0 0">
+            <!-- Pedestal vazio -->
+            <a-box position="0 0.5 0" width="1.2" height="1" depth="1.2" color="#2c3e50" roughness="0.5"></a-box>
+            <a-box position="0 1.2 0" width="1" height="0.2" depth="1" color="#34495e" roughness="0.3"></a-box>
+
+            <!-- Placa de identificação -->
+            <a-plane position="-0.61 0.2 0" width="1" height="0.3" color="#ecf0f1" roughness="0.4"
+                rotation="0 -90 0"></a-plane>
+            <a-text value="Em Breve" position="-0.61 0.2 0" align="center" anchor="center" color="#2c3e50" scale="1 1 1"
+                rotation="0 -90 0"></a-text>
+        </a-entity>
 
     </a-scene>
 
