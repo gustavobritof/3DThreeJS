@@ -143,7 +143,7 @@
         </a-assets>
 
         <!-- Câmera e Cursor (Compartilhado) -->
-        <a-entity id="rig" position="0 0 0">
+        <a-entity id="rig" position="0 0 0">                
             <a-camera position="0 1.6 0" look-controls="pointerLockEnabled: false">
                 <a-cursor id="cursor" color="white" raycaster="objects: .clickable"></a-cursor>
                 <!-- Anel extra para a cena 2 -->
@@ -365,6 +365,7 @@
         const actionBtn = document.getElementById('action-btn');
         const cursor = document.getElementById('cursor');
         const btnVoltar = document.getElementById('btn-voltar');
+        const camera = document.querySelector('a-camera');
 
         // ==========================================
         // INICIALIZAÇÃO
@@ -439,6 +440,7 @@
                 modelEl.addEventListener('mouseenter', () => {
                     cursor.setAttribute('color', 'green');
                     const [x, y, z] = item.scale.split(' ').map(parseFloat);
+
                     modelEl.setAttribute('scale', `${x * 1.1} ${y * 1.1} ${z * 1.1}`);
                 });
 
@@ -511,8 +513,21 @@
 
             const galleryScene = document.getElementById('scene-gallery');
             galleryScene.setAttribute('visible', 'true');
+            
             // Mover a câmera/rig para a posição da galeria (offset de 100 em X)
-            document.getElementById('rig').setAttribute('position', '100 0 0');
+            const rig = document.getElementById('rig');
+            rig.setAttribute('position', '100 0 0');
+            rig.setAttribute('rotation', '0 0 0');
+            
+            // Resetar rotação da câmera através do componente look-controls
+            const cameraEl = camera;
+            cameraEl.setAttribute('rotation', '0 0 0');
+            
+            // Forçar reset do look-controls
+            if (cameraEl.components['look-controls']) {
+                cameraEl.components['look-controls'].pitchObject.rotation.x = 0;
+                cameraEl.components['look-controls'].yawObject.rotation.y = 0;
+            }
 
             // 2. Configura o Modelo na Galeria
             const holder = document.getElementById('gallery-model-holder');
@@ -548,8 +563,20 @@
             document.getElementById('scene-gallery').setAttribute('visible', 'false');
             document.getElementById('scene-museum').setAttribute('visible', 'true');
 
-            // 2. Reseta Posição
-            document.getElementById('rig').setAttribute('position', '0 0 0');
+            // 2. Reseta Posição e Rotação do Rig e Câmera
+            const rig = document.getElementById('rig');
+            rig.setAttribute('position', '0 0 0');
+            rig.setAttribute('rotation', '0 0 0');
+            
+            // Resetar rotação da câmera através do componente look-controls
+            const cameraEl = camera;
+            cameraEl.setAttribute('rotation', '0 0 0');
+            
+            // Forçar reset do look-controls
+            if (cameraEl.components['look-controls']) {
+                cameraEl.components['look-controls'].pitchObject.rotation.x = 0;
+                cameraEl.components['look-controls'].yawObject.rotation.y = 0;
+            }
 
             // 3. Reseta Cursor
             document.getElementById('cursor-ring').setAttribute('visible', 'false');
