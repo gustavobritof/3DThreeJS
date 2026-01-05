@@ -19,11 +19,32 @@
             /* Fundo preto ajuda na transição */
         }
     </style>
+    <script>
+        // // // COMPONENTE Faz o ícone e o painel sempre encararem o usuário
+        // AFRAME.registerComponent('billboard', {
+        //     tick: function () {
+        //         var camera = this.el.sceneEl.camera;
+        //         if (camera) {
+        //             this.el.object3D.lookAt(camera.el.object3D.position);
+        //         }
+        //     }
+        // });
+
+        // FUNÇÃO PARA FECHAR PAINÉIS: Limpa os containers e mostra os ícones de volta
+        function hideAllInfoPanels() {
+            const containers = document.querySelectorAll("[id^=infoPanelContainer]");
+            containers.forEach((container) => {
+                container.innerHTML = ""; // Remove o conteúdo do template
+                const hotspotIcon = container.previousElementSibling;
+                if (hotspotIcon) hotspotIcon.setAttribute("visible", true); // Mostra o botão azul
+            });
+        }
+    </script>
 </head>
 
 <body>
 
-    <a-scene id="scene01">
+    <a-scene stats id="scene01">
 
         <a-assets>
             <img id="skyTexture" src="/images/sky.jpg">
@@ -32,10 +53,40 @@
             <a-asset-item id="saturnv-model" src="/models/saturnV.glb"></a-asset-item>
             <a-asset-item id="iss-model" src="/models/ISS_Correct.glb"></a-asset-item>
             <a-asset-item id="voyager-model" src="/models/Voyager 1.glb"></a-asset-item>
+            <img id="hotspot-img" src="images/HotspotIcon.png">
+            <img id="crossIcon" src="https://coddmac.store/THREE/360/cross-icon.svg">
+            <!-- TEMPLATE 1: HUBBLE -->
+
+            <template id="infoPanel1">
+                <a-entity rotation="0 45 0">
+                    <a-plane color="#1a1a1a" height="1.5" width="2.5" position="1.79222 1.2 -0.0711"
+                        rotation="0 -16.71 0" material="side: double">
+                        <a-text
+                            value="TELESCOPIO HUBBLE\n\nLancado em 1990, ele revolucionou a astronomia ao capturar imagens sem a distorcao da atmosfera terrestre."
+                            align="center" width="2.2" position="0 0.2 0.01" text=""></a-text>
+                        <a-image id="close-btn" src="#crossIcon" class="clickable" position="1.1 0.6 0.001" width="0.25"
+                            height="0.25" material="" geometry=""></a-image>
+                    </a-plane>
+                </a-entity>
+            </template>
+
+            <!-- TEMPLATE 2: VOYAGER -->
+            <template id="infoPanel2">
+                <a-entity>
+                    <a-plane color="#1a1a1a" height="1.5" width="2.5" position="0 1.2 0" material="opacity: 1">
+                        <a-text
+                            value="SONDA VOYAGER 1\n\nO objeto humano mais distante da Terra. Atualmente viaja pelo espaco interestelar."
+                            align="center" width="2.2" position="0 0.2 0.01"></a-text>
+                        <a-image id="close-btn" src="#crossIcon" class="clickable" position="1.1 0.6 0.001" width="0.25"
+                            height="0.25"></a-image>
+                    </a-plane>
+                </a-entity>
+            </template>
+        </a-assets>
 
         </a-assets>
         <a-sky src="#skyTexture"></a-sky>
-        <a-camera position="0 1.6 0">
+        <a-camera position="0 1.6 0" cursor="rayOrigin: mouse">
             <a-cursor></a-cursor>
         </a-camera>
 
@@ -103,20 +154,28 @@
         <!-- Exibições  -->
         <a-entity id="exhibits-container">
             <!-- Hubble -->
-            <a-entity position="-5 0 -5">
+            <a-entity id="hubble" position="-5 0 -5">
                 <a-box position="0 0.5 0" width="1.2" height="1" depth="1.2" color="#34495e" roughness="0.4"
-                    shadow></a-box>
-                <a-box position="0 1.05 0" width="1.25" height="0.1" depth="1.25" color="#2c3e50"
-                    roughness="0.3"></a-box>
+                    rotation="0 -45 0"></a-box>
+                <a-box position="0 1.05 0" width="1.25" height="0.1" depth="1.25" color="#2c3e50" roughness="0.3"
+                    rotation="0 -45 0"></a-box>
                 <a-box position="0 1.2 0" width="1" height="0.15" depth="1" color="#5d6d7e" roughness="0.2"
-                    metalness="0.3"></a-box>
+                    metalness="0.3" rotation="0 -45 0"></a-box>
 
                 <a-entity gltf-model="#hubble-model" position="0 2 0" scale="0.0003 0.0003 0.0003"
                     class="clickable exhibit-model" data-exhibit-id="hubble" cursor-hover
                     animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"></a-entity>
 
-                <a-plane position="0 0.2 0.61" width="1" height="0.3" color="#ecf0f1" roughness="0.4"></a-plane>
-                <a-text value="🔭 Hubble" position="0 0.2 0.61" align="center" anchor="center" color="#2c3e50"></a-text>
+                <a-entity position="0.425 0.2 0.450" rotation="0 45 0">
+                    <a-plane position="0 0 0" width="1" height="0.3" color="#ecf0f1" roughness="0.4"></a-plane>
+                    <a-text value="🔭 Hubble" position="0 0 0" align="center" anchor="center" color="#2c3e50"></a-text>
+                </a-entity>
+
+                <a-entity position="0.5 0.7 0.52">
+                    <a-image src="#hotspot-img" class="clickable" data-triggerable-button="1" billboard=""
+                        scale="0.5 0.5 0.5" material="" geometry="" rotation="0 45 0"></a-image>
+                    <a-entity id="infoPanelContainer1"></a-entity>
+                </a-entity>
             </a-entity>
 
             <!-- JWST -->
@@ -139,19 +198,21 @@
             <!-- Saturn V -->
             <a-entity position="5 0 -5">
                 <a-box position="0 0.5 0" width="1.2" height="1" depth="1.2" color="#34495e" roughness="0.4"
-                    shadow></a-box>
-                <a-box position="0 1.05 0" width="1.25" height="0.1" depth="1.25" color="#2c3e50"
-                    roughness="0.3"></a-box>
+                    rotation="0 45 0"></a-box>
+                <a-box position="0 1.05 0" width="1.25" height="0.1" depth="1.25" color="#2c3e50" roughness="0.3"
+                    rotation="0 45 0"></a-box>
                 <a-box position="0 1.2 0" width="1" height="0.15" depth="1" color="#5d6d7e" roughness="0.2"
-                    metalness="0.3"></a-box>
+                    metalness="0.3" rotation="0 45 0"></a-box>
 
                 <a-entity gltf-model="#saturnv-model" position="0 2 0" scale="0.2 0.2 0.2"
                     class="clickable exhibit-model" data-exhibit-id="saturnv" cursor-hover
                     animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"></a-entity>
 
-                <a-plane position="0 0.2 0.61" width="1" height="0.3" color="#ecf0f1" roughness="0.4"></a-plane>
-                <a-text value="🚀 Saturn V" position="0 0.2 0.61" align="center" anchor="center"
-                    color="#2c3e50"></a-text>
+                <a-entity rotation="0 -45 0">
+                    <a-plane position="0 0.2 0.61" width="1" height="0.3" color="#ecf0f1" roughness="0.4"></a-plane>
+                    <a-text value="🚀 Saturn V" position="0 0.2 0.61" align="center" anchor="center"
+                        color="#2c3e50"></a-text>
+                </a-entity>
             </a-entity>
 
             <!-- ISS -->
@@ -190,14 +251,64 @@
                     rotation="0 -90 0"></a-plane>
                 <a-text value="🛰️ Voyager" position="-0.61 0.2 0" align="center" anchor="center" color="#2c3e50"
                     rotation="0 -90 0"></a-text>
+
+                <a-entity position="-0.8 0.7 0.030" rotation="0 -90 0">
+                    <a-image src="#hotspot-img" class="clickable" data-triggerable-button="2" billboard
+                        scale="0.5 0.5 0.5"></a-image>
+                    <a-entity id="infoPanelContainer2"></a-entity>
+                </a-entity>
+
             </a-entity>
         </a-entity>
+        </a-entity>
+
+
+
 
         </a-entity>
     </a-scene>
 
     <script>
-        document.getElementById('portal-cena2').addEventListener('click', () => irParaCena(2));
+        // Lógica de funcionamento dos Hotspots (Russa/UMD adaptada)
+        window.onload = function () {
+
+            const buttons = document.querySelectorAll("[data-triggerable-button]");
+
+            buttons.forEach((btn) => {
+                // Função para abrir o painel
+                const openPanel = function () {
+                    const id = btn.getAttribute("data-triggerable-button");
+                    const template = document.querySelector(`#infoPanel${id}`);
+                    const container = btn.nextElementSibling; // O infoPanelContainer logo abaixo
+
+                    // 1. Fecha qualquer outro painel aberto antes
+                    hideAllInfoPanels();
+
+                    // 2. Injeta o conteúdo do template no container correspondente
+                    const clone = document.importNode(template.content, true);
+                    container.appendChild(clone);
+
+                    // 3. Esconde o ícone azul enquanto o painel estiver aberto
+                    btn.setAttribute("visible", false);
+
+                    // 4. Configura o botão de fechar (X) que foi criado agora
+                    setTimeout(() => {
+                        const closeBtn = container.querySelector("#close-btn");
+                        if (closeBtn) {
+                            closeBtn.addEventListener("click", (e) => {
+                                hideAllInfoPanels();
+                            });
+                        }
+                    }, 100);
+                };
+
+                // Event listener para clique A-Frame (cursor)
+                btn.addEventListener("click", openPanel);
+
+                // Event listener para clique do mouse normal
+                btn.addEventListener("mousedown", openPanel);
+            });
+        };
     </script>
 </body>
 
