@@ -37,6 +37,9 @@
         <a-assets>
             <a-asset-item id="hubble" src="models/hubble.glb"></a-asset-item>
             <a-asset-item id="voyager" src="models/Voyager 1.glb"></a-asset-item>
+            <a-asset-item id="jwst" src="models/jwst_james_webb_space_telescope.glb"></a-asset-item>
+            <a-asset-item id="saturnv" src="models/saturnV.glb"></a-asset-item>
+            <a-asset-item id="iss" src="models/ISS_Correct.glb"></a-asset-item>
         </a-assets>
 
         <a-entity look-controls="enabled:false" orbit-controls="
@@ -64,9 +67,6 @@
 
         <!-- MODELO DINÂMICO (muda conforme clicado) -->
         <a-entity id="dynamic-model" position="0 4 0" scale="0.003 0.003 0.003"></a-entity>
-        </a-entity>
-
-        <a-entity position="0 4 0" gltf-model="#hubble" scale="0.003 0.003 0.003"></a-entity>
 
 
         <a-entity grid-linhas="tamanho: 100; divisoes: 40; cor: #5ac8fa; opacidade: 0.2"></a-entity>
@@ -106,15 +106,51 @@
 
     // Carrega o modelo dinamicamente
     window.addEventListener('load', function () {
-        const dynamicModel = document.getElementById('dynamic-model');
-        const modelAsset = document.getElementById(modeloAtual);
+        const modeloExibicao = sessionStorage.getItem('modeloExibicao') || 'hubble';
 
-        if (modelAsset) {
-            dynamicModel.setAttribute('gltf-model', `#${modeloAtual}`);
-        }
+        // Carrega configurações do JSON
+        fetch('modelsConfig.json')
+            .then(r => r.json())
+            .then(modelsConfig => {
+                const config = modelsConfig[modeloExibicao]?.scene03 || {
+                    position: '0 4 0',
+                    scale: '0.003 0.003 0.003',
+                    rotation: '0 0 0'
+                };
 
-        // Atualiza o título
-        document.getElementById('cena-titulo').textContent = `Cena 3D - ${modeloAtual.toUpperCase()}`;
+                const dynamicModel = document.getElementById('dynamic-model');
+
+                // Mapeamento dos modelos
+                const modelMap = {
+                    'hubble': 'hubble',
+                    'voyager': 'voyager',
+                    'jwst': 'jwst',
+                    'saturnv': 'saturnv',
+                    'iss': 'iss'
+                };
+
+                const assetId = modelMap[modeloExibicao];
+                if (assetId) {
+                    dynamicModel.setAttribute('gltf-model', `#${assetId}`);
+                    dynamicModel.setAttribute('position', config.position);
+                    dynamicModel.setAttribute('scale', config.scale);
+                    dynamicModel.setAttribute('rotation', config.rotation);
+                }
+
+                // Atualiza o título
+                const titles = {
+                    'hubble': 'TELESCÓPIO HUBBLE',
+                    'voyager': 'SONDA VOYAGER 1',
+                    'jwst': 'JAMES WEBB SPACE TELESCOPE',
+                    'saturnv': 'FOGUETE SATURN V',
+                    'iss': 'ESTAÇÃO ESPACIAL INTERNACIONAL'
+                };
+
+                document.getElementById('cena-titulo').textContent = titles[modeloExibicao] || 'MODELO 3D';
+            })
+            .catch(err => {
+                console.error('Erro ao carregar modelsConfig.json:', err);
+            });
     });
 </script>
 

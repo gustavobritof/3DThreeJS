@@ -6,11 +6,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Museu Espacial VR</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-orbit-controls@1.3.2/dist/aframe-orbit-controls.min.js"></script>
     <script src="sceneManager.js"></script>
 
     <!-- Componente para texto curvo -->
     <script>
+        // Componente de transição com singularidade
+        AFRAME.registerComponent('wormhole-transition', {
+            schema: {
+                active: { type: 'boolean', default: false },
+                duration: { type: 'number', default: 2500 }
+            },
+            init: function () {
+                this.tunnel = this.el;
+                this.camera = document.querySelector('a-camera');
+                this.startTime = 0;
+                this.transitioning = false;
+            },
+            update: function (oldData) {
+                if (this.data.active && !oldData.active) {
+                    this.startTransition();
+                }
+            },
+            startTransition: function () {
+                this.transitioning = true;
+                this.startTime = Date.now();
+
+                const cameraPos = this.camera.object3D.position;
+                const cameraRot = this.camera.object3D.rotation;
+
+                const distance = 8;
+                const tunnelX = cameraPos.x + Math.sin(cameraRot.y) * distance;
+                const tunnelZ = cameraPos.z + Math.cos(cameraRot.y) * distance;
+
+                this.tunnel.setAttribute('position', `${tunnelX} ${cameraPos.y} ${tunnelZ}`);
+                this.tunnel.setAttribute('rotation', `0 ${cameraRot.y * 180 / Math.PI} 0`);
+                this.tunnel.setAttribute('visible', true);
+            },
+            tick: function () {
+                if (!this.transitioning) return;
+
+                const elapsed = Date.now() - this.startTime;
+                const progress = Math.min(elapsed / this.data.duration, 1);
+
+                const scale = 0.5 + progress * 3;
+                this.tunnel.setAttribute('scale', `${scale} ${scale} ${scale}`);
+
+                const rotation = progress * 720;
+                const currentRot = this.tunnel.getAttribute('rotation');
+                this.tunnel.setAttribute('rotation', `0 ${currentRot.y} ${rotation}`);
+
+                const cameraPos = this.camera.object3D.position;
+                const tunnelPos = this.tunnel.object3D.position;
+                const moveSpeed = progress * 0.3;
+
+                cameraPos.x += (tunnelPos.x - cameraPos.x) * moveSpeed;
+                cameraPos.z += (tunnelPos.z - cameraPos.z) * moveSpeed;
+
+                if (progress >= 1) {
+                    this.transitioning = false;
+                }
+            }
+        });
+
         AFRAME.registerComponent('curved-text', {
             schema: {
                 value: { type: 'string', default: '' },
@@ -124,10 +181,14 @@
         </div>
     </div>
 
-    <a-scene id="scene02" shadow="type: pcfs">
+    <a-scene id="scene02">
         <a-assets>
+            <img id="singularity-texture" src="/assets/singularity.jpg">
             <a-asset-item id="hubble-asset" src="models/hubble.glb"></a-asset-item>
             <a-asset-item id="voyager-asset" src="models/Voyager 1.glb"></a-asset-item>
+            <a-asset-item id="jwst-asset" src="models/jwst_james_webb_space_telescope.glb"></a-asset-item>
+            <a-asset-item id="saturnv-asset" src="models/saturnV.glb"></a-asset-item>
+            <a-asset-item id="iss-asset" src="models/ISS_Correct.glb"></a-asset-item>
 
 
             <img src="images/ceu-noturno-estrelado-azul-e-branco.jpg" id="sky">
@@ -139,7 +200,7 @@
         </a-assets>
 
 
-        <a-camera position="0 1.6 0">
+        <a-camera position="0 1.6 0" cursor="rayOrigin: mouse">
             <a-cursor></a-cursor>
         </a-camera>
 
@@ -196,8 +257,9 @@
         <a-cylinder color="#8b7355" radius="0.65" height="0.1" position="-4 0.4 -2" shadow
             emissive="#8b7355"></a-cylinder>
         <!-- MODELO 3D DINÂMICO no canto -->
-        <a-entity id="dynamic-model-pedestal" position="-4 0.7 -2" scale="0.004 0.004 0.004" rotation="0 45 0"
-            cursor-hover animation="property: rotation; to: 0 360 45; loop: true; dur: 8000; easing: linear">
+        <a-entity id="dynamic-model-pedestal" class="clickable" position="-4 0.7 -2" scale="0.004 0.004 0.004"
+            rotation="0 45 0" cursor-hover
+            animation="property: rotation; to: 0 405 0; loop: true; dur: 8000; easing: linear">
         </a-entity>
 
         <!-- Título Principal da Galeria com Placa Arredondada -->
@@ -256,41 +318,105 @@
 
 
     <script>
+        // Mapeamento de modelos para assets
+        const modelAssets = {
+            'hubble': '#hubble-asset',
+            'voyager': '#voyager-asset',
+
+            'jwst': '#jwst-asset',
+            'saturnv': '#saturnv-asset',
+            'iss': '#iss-asset'
+        };
+
+        // Variáveis globais para navegação
+        let currentModelType = 'hubble';
+        let currentConfig = {};
+        let modelsConfig = {};
+
+        // Carrega configurações do JSON
+        fetch('modelsConfig.json')
+            .then(r => r.json())
+            .then(config => {
+                modelsConfig = config;
+            })
+            .catch(err => console.error('Erro ao carregar modelsConfig.json:', err));
+
         // Recupera o modelo selecionado e renderiza
         window.addEventListener('load', () => {
             const modelType = sessionStorage.getItem('modeloExibicao') || 'hubble';
-            const configStr = sessionStorage.getItem('modeloConfig');
-            const config = configStr ? JSON.parse(configStr) : { scale: '0.005 0.005 0.005', rotation: '0 0 0' };
+            currentModelType = modelType;
 
-            const dynamicModel = document.getElementById('dynamic-model-pedestal');
+            // Aguarda o JSON carregar antes de aplicar configs
+            const checkConfig = setInterval(() => {
+                if (Object.keys(modelsConfig).length > 0) {
+                    clearInterval(checkConfig);
 
-            // Map de modelos para IDs dos assets
-            const modelMap = {
-                'hubble': 'hubble-asset',
-                'voyager': 'voyager-asset',
-                'jwst': 'jwst-asset',
-                'saturnv': 'saturnv-asset',
-                'iss': 'iss-asset'
-            };
+                    // Busca config do JSON
+                    if (modelsConfig[modelType] && modelsConfig[modelType]['scene02']) {
+                        currentConfig = modelsConfig[modelType]['scene02'];
+                    } else {
+                        currentConfig = { position: '-4 0.7 -2', scale: '0.005 0.005 0.005', rotation: '0 0 0' };
+                    }
 
-            const assetId = modelMap[modelType];
-            if (assetId) {
-                dynamicModel.setAttribute('gltf-model', `#${assetId}`);
-                dynamicModel.setAttribute('scale', config.scale);
-                dynamicModel.setAttribute('rotation', config.rotation);
+                    const dynamicModel = document.getElementById('dynamic-model-pedestal');
+
+                    // Map de modelos para IDs dos assets
+                    const modelMap = {
+                        'hubble': 'hubble-asset',
+                        'voyager': 'voyager-asset',
+                        'jwst': 'jwst-asset',
+                        'saturnv': 'saturnv-asset',
+                        'iss': 'iss-asset'
+                    };
+
+                    const assetId = modelMap[modelType];
+                    if (assetId) {
+                        dynamicModel.setAttribute('gltf-model', `#${assetId}`);
+                        dynamicModel.setAttribute('position', currentConfig.position);
+                        dynamicModel.setAttribute('scale', currentConfig.scale);
+                        dynamicModel.setAttribute('rotation', currentConfig.rotation);
+                    }
+
+                    // Atualiza título da galeria
+                    const titles = {
+                        'hubble': 'TELESCOPIO HUBBLE',
+                        'voyager': 'SONDA VOYAGER 1',
+                        'jwst': 'JAMES WEBB SPACE TELESCOPE',
+                        'saturnv': 'FOGUETE SATURN V',
+                        'iss': 'ESTAÇÃO ESPACIAL INTERNACIONAL'
+                    };
+
+                    document.getElementById('gallery-main-title').setAttribute('value', titles[modelType] || 'MUSEU ESPACIAL');
+
+                    // Adicionar evento de clique no modelo para ir para scene03
+                    if (dynamicModel) {
+                        dynamicModel.addEventListener('click', () => {
+                            navegarParaCena3();
+                        });
+                        dynamicModel.classList.add('clickable');
+                    }
+                }
+            }, 100);
+        });
+
+        // Função para navegar para a cena 3D
+        function navegarParaCena3() {
+            sessionStorage.setItem('modeloExibicao', currentModelType);
+
+            // Ativa animação do wormhole
+            const wormhole = document.querySelector('#wormhole-tunnel');
+            if (wormhole) {
+                wormhole.setAttribute('wormhole-transition', 'active', true);
             }
 
-            // Atualiza título da galeria
-            const titles = {
-                'hubble': 'TELESCOPIO HUBBLE',
-                'voyager': 'SONDA VOYAGER 1',
-                'jwst': 'JAMES WEBB SPACE TELESCOPE',
-                'saturnv': 'FOGUETE SATURN V',
-                'iss': 'ESTAÇÃO ESPACIAL INTERNACIONAL'
-            };
+            setTimeout(() => {
+                document.body.style.opacity = '0';
+            }, 1500);
 
-            document.getElementById('gallery-main-title').setAttribute('value', titles[modelType] || 'MUSEU ESPACIAL');
-        });
+            setTimeout(() => {
+                window.location.href = 'scene03.html';
+            }, 2500);
+        }
 
         // Sistema de Diálogos Expansíveis
         const dialogContent = {

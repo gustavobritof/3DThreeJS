@@ -1,0 +1,87 @@
+{
+    "hubble": {
+        "scene01": {
+            "position": "0 2 0",
+            "scale": "0.0003 0.0003 0.0003",
+            "rotation": "0 0 0"
+        },
+        "scene02": {
+            "position": "-4 0.7 -2",
+            "scale": "0.0005 0.0005 0.0005",
+            "rotation": "0 0 0"
+        },
+        "scene03": {
+            "position": "0 4 0",
+            "scale": "0.0005 0.0005 0.0005",
+            "rotation": "0 0 0"
+        }
+    },
+    "jwst": {
+        "scene01": {
+            "position": "0 2 0",
+            "scale": "0.05 0.05 0.05",
+            "rotation": "0 0 0"
+        },
+        "scene02": {
+            "position": "-4 0.7 -2",
+            "scale": "0.05 0.05 0.05",
+            "rotation": "0 0 0"
+        },
+        "scene03": {
+            "position": "0 4 0",
+            "scale": "0.4 0.4 0.4",
+            "rotation": "0 0 0"
+        }
+    },
+    "saturnv": {
+        "scene01": {
+            "position": "0 2 0",
+            "scale": "0.2 0.2 0.2",
+            "rotation": "0 0 0"
+        },
+        "scene02": {
+            "position": "-4 0.7 -2",
+            "scale": "0.2 0.2 0.2",
+            "rotation": "0 0 0"
+        },
+        "scene03": {
+            "position": "0 4 0",
+            "scale": "0.2 0.2 0.2",
+            "rotation": "0 0 0"
+        }
+    },
+    "iss": {
+        "scene01": {
+            "position": "0 2 0",
+            "scale": "0.1 0.1 0.1",
+            "rotation": "0 0 0"
+        },
+        "scene02": {
+            "position": "-4 0.7 -2",
+            "scale": "0.1 0.1 0.1",
+            "rotation": "0 0 0"
+        },
+        "scene03": {
+            "position": "0 4 0",
+            "scale": "0.1 0.1 0.1",
+            "rotation": "0 0 0"
+        }
+    },
+    "voyager": {
+        "scene01": {
+            "position": "0 2 0",
+            "scale": "0.15 0.15 0.15",
+            "rotation": "0 0 45"
+        },
+        "scene02": {
+            "position": "-4 0.7 -2",
+            "scale": "0.15 0.15 0.15",
+            "rotation": "0 0 45"
+        },
+        "scene03": {
+            "position": "0 4 0",
+            "scale": "0.15 0.15 0.15",
+            "rotation": "0 0 45"
+        }
+    }
+}

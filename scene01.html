@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Museu Espacial VR</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-orbit-controls@1.3.2/dist/aframe-orbit-controls.min.js"></script>
     <script src="sceneManager.js"></script>
     <style>
         body {
@@ -20,15 +19,30 @@
         }
     </style>
     <script>
-        // // // COMPONENTE Faz o ícone e o painel sempre encararem o usuário
-        // AFRAME.registerComponent('billboard', {
-        //     tick: function () {
-        //         var camera = this.el.sceneEl.camera;
-        //         if (camera) {
-        //             this.el.object3D.lookAt(camera.el.object3D.position);
-        //         }
-        //     }
-        // });
+        // Carrega configurações dos modelos
+        let modelsConfig = {};
+        fetch('modelsConfig.json')
+            .then(r => r.json())
+            .then(config => {
+                modelsConfig = config;
+                applyModelConfigs();
+            })
+            .catch(err => console.error('Erro ao carregar modelsConfig.json:', err));
+
+        function applyModelConfigs() {
+            const scene = 'scene01';
+            const models = ['hubble', 'jwst', 'saturnv', 'iss', 'voyager'];
+
+            models.forEach(modelName => {
+                const entity = document.getElementById(`${modelName}-model-entity`);
+                if (entity && modelsConfig[modelName] && modelsConfig[modelName][scene]) {
+                    const cfg = modelsConfig[modelName][scene];
+                    entity.setAttribute('position', cfg.position);
+                    entity.setAttribute('scale', cfg.scale);
+                    entity.setAttribute('rotation', cfg.rotation);
+                }
+            });
+        }
 
         // FUNÇÃO PARA FECHAR PAINÉIS: Limpa os containers e mostra os ícones de volta
         function hideAllInfoPanels() {
@@ -44,10 +58,10 @@
 
 <body>
 
-    <a-scene stats id="scene01">
+    <a-scene id="scene01">
 
         <a-assets>
-            <img id="skyTexture" src="/images/sky.jpg">
+            <img id="skyTexture" src="/images/ceu-noturno-estrelado-azul-e-branco.jpg">
             <a-asset-item id="hubble-model" src="/models/hubble.glb"></a-asset-item>
             <a-asset-item id="jwst-model" src="/models/jwst_james_webb_space_telescope.glb"></a-asset-item>
             <a-asset-item id="saturnv-model" src="/models/saturnV.glb"></a-asset-item>
@@ -55,6 +69,7 @@
             <a-asset-item id="voyager-model" src="/models/Voyager 1.glb"></a-asset-item>
             <img id="hotspot-img" src="images/HotspotIcon.png">
             <img id="crossIcon" src="https://coddmac.store/THREE/360/cross-icon.svg">
+            <img id="backTexture" src="assets/Panoramas/home.png" alt="Tela inicial">
             <!-- TEMPLATE 1: HUBBLE -->
 
             <template id="infoPanel1">
@@ -73,7 +88,7 @@
                     </a-plane>
                 </a-entity>
             </template>
-
+            <!-- #endregion -->
             <!-- TEMPLATE 2: VOYAGER -->
             <template id="infoPanel2">
                 <a-entity>
@@ -107,7 +122,7 @@
                     </a-plane>
                 </a-entity>
             </template>
-
+            <!-- #endregion -->
             <!-- TEMPLATE 4: SATURN V -->
             <template id="infoPanel4">
                 <a-entity rotation="0 -45 0">
@@ -144,17 +159,50 @@
             </template>
         </a-assets>
 
-        </a-assets>
-        <a-sky id="sky-main" src="#skyTexture"></a-sky>
-        <a-camera id="main-camera" position="0 1.6 0" cursor="rayOrigin: mouse">
-            <a-cursor id="main-cursor"></a-cursor>
+
+        <a-sky id="sky-main" src="#skyTexture"
+            animation="property: rotation; to: 0 360 0; loop: true; dur: 365000; easing: linear"></a-sky>
+
+        <a-camera id="main-camera" wall-collision position="0 1.6 0" cursor="rayOrigin: mouse"
+            raycaster="objects: .clickable">
+
+            <!-- <a-entity
+  animation__click="property: scale; startEvents: click; easing: easeInCubic; dur: 150; from: 0.1 0.1 0.1; to: 1 1 1"
+  animation__fusing="property: scale; startEvents: fusing; easing: easeInCubic; dur: 1500; from: 1 1 1; to: 0.1 0.1 0.1"
+  animation__mouseleave="property: scale; startEvents: mouseleave; easing: easeInCubic; dur: 500; to: 1 1 1"
+  cursor="fuse: true;"
+  material="color: black; shader: flat"
+  position="0 0 -3"
+  geometry="primitive: ring"></a-entity> -->
+
+            <a-cursor color="#ffffff" fuse="true" fuse-timeout="2000"
+                animation__fusing="property: scale; startEvents: fusing; easing: easeInCubic; dur: 2000; from: 1 1 1; to: 0.1 0.1 0.1"></a-cursor>
+
         </a-camera>
 
-        <a-light id="ambient-light" type="ambient" color="#fff" intensity="0.6"></a-light>
-        <a-light id="directional-light" type="directional" color="#fff" intensity="0.8" position="5 10 5"></a-light>
-        <a-light id="point-light-1" type="point" intensity="0.5" position="-5 3 -5" color="#ffe8cc"></a-light>
-        <a-light id="point-light-2" type="point" intensity="0.5" position="5 3 -5" color="#ffe8cc"></a-light>
-        <a-light id="point-light-3" type="point" intensity="0.5" position="0 3 0" color="#ffe8cc"></a-light>
+        <!-- Iluminação Geral -->
+        <a-light id="ambient-light" type="ambient" color="#ffe8cc" intensity="0.3"></a-light>
+        <a-light id="directional-light" type="directional" color="#fff" intensity="0.4" position="5 10 5"
+            castShadow></a-light>
+
+        <!-- Spotlights nos Modelos -->
+        <a-light type="spot" intensity="0.7" position="-5 4 -5" target="#hubble-model-entity" angle="25" penumbra="0.3"
+            color="#ffffff" castShadow></a-light>
+        <a-light type="spot" intensity="0.7" position="0 4 -5" target="#jwst-model-entity" angle="25" penumbra="0.3"
+            color="#ffffff" castShadow></a-light>
+        <a-light type="spot" intensity="0.7" position="5 4 -5" target="#saturnv-model-entity" angle="25" penumbra="0.3"
+            color="#ffffff" castShadow></a-light>
+        <a-light type="spot" intensity="0.7" position="-5 4 0" target="#iss-model-entity" angle="25" penumbra="0.3"
+            color="#ffffff" castShadow></a-light>
+        <a-light type="spot" intensity="0.7" position="5 4 0" target="#voyager-model-entity" angle="25" penumbra="0.3"
+            color="#ffffff" castShadow></a-light>
+
+        <!-- Luzes de destaque -->
+        <a-light id="point-light-1" type="point" intensity="0.2" position="-5 2.5 -5" color="#ffd4a3"></a-light>
+        <a-light id="point-light-2" type="point" intensity="0.2" position="5 2.5 -5" color="#ffd4a3"></a-light>
+        <a-light id="point-light-3" type="point" intensity="0.2" position="0 2.5 0" color="#ffd4a3"></a-light>
+        <a-light id="point-light-4" type="point" intensity="0.2" position="-5 2.5 0" color="#ffd4a3"></a-light>
+        <a-light id="point-light-5" type="point" intensity="0.2" position="5 2.5 0" color="#ffd4a3"></a-light>
 
         <!-- Ambiente -->
         <a-plane id="floor-main" rotation="-90 0 0" width="50" height="50" color="#8b6f47" roughness="0.6"
@@ -162,28 +210,146 @@
         <!-- Detalhes do chão -->
         <a-plane id="floor-detail" rotation="-90 0 0" width="18" height="18" position="0 0.01 -1" color="#a0826d"
             roughness="0.5"></a-plane>
-        <a-sky id="sky-museum" src="#skyTexture"></a-sky>
-        <!-- Teto -->
-        <a-plane id="ceiling" rotation="90 0 0" width="22" height="22" position="0 5 -1" color="#f5f5dc"
-            roughness="0.7"></a-plane>
+
+        <!-- Teto com claraboia central -->
+        <a-entity id="ceiling-structure">
+            <!-- Teto frontal -->
+            <a-box id="ceiling-front" position="0 5 -7" width="20" height="0.2" depth="6" color="#f5f5dc"
+                roughness="0.7" material="emissive: #e8dcc7; emissiveIntensity: 0.1"></a-box>
+            <!-- Teto traseiro -->
+            <a-box id="ceiling-back" position="0 5 5" width="20" height="0.2" depth="8" color="#f5f5dc" roughness="0.7"
+                material="emissive: #e8dcc7; emissiveIntensity: 0.1"></a-box>
+            <!-- Teto esquerdo -->
+            <a-box id="ceiling-left" position="-7 5 -1" width="6" height="0.2" depth="8" color="#f5f5dc" roughness="0.7"
+                material="emissive: #e8dcc7; emissiveIntensity: 0.1"></a-box>
+            <!-- Teto direito -->
+            <a-box id="ceiling-right" position="7 5 -1" width="6" height="0.2" depth="8" color="#f5f5dc" roughness="0.7"
+                material="emissive: #e8dcc7; emissiveIntensity: 0.1"></a-box>
+
+            <!-- Molduras da claraboia -->
+            <a-box id="skylight-frame-front" position="0 4.9 -4.2" width="14.5" height="0.15" depth="0.25"
+                color="#8b7355" material="metalness: 0.3; emissive: #6d5d4b; emissiveIntensity: 0.3"></a-box>
+            <a-box id="skylight-frame-back" position="0 4.9 2.2" width="14.5" height="0.15" depth="0.25" color="#8b7355"
+                material="metalness: 0.3; emissive: #6d5d4b; emissiveIntensity: 0.3"></a-box>
+            <a-box id="skylight-frame-left" position="-7 4.9 -1" width="0.25" height="0.15" depth="6.5" color="#8b7355"
+                material="metalness: 0.3; emissive: #6d5d4b; emissiveIntensity: 0.3"></a-box>
+            <a-box id="skylight-frame-right" position="7 4.9 -1" width="0.25" height="0.15" depth="6.5" color="#8b7355"
+                material="metalness: 0.3; emissive: #6d5d4b; emissiveIntensity: 0.3"></a-box>
+
+            <!-- Grades decorativas da claraboia -->
+            <!-- Vigas horizontais -->
+            <a-box id="skylight-grid-h1" position="0 4.92 -2.5" width="14" height="0.12" depth="0.12" color="#6d5d4b"
+                material="metalness: 0.5; roughness: 0.3"></a-box>
+            <a-box id="skylight-grid-h2" position="0 4.92 -1" width="14" height="0.12" depth="0.12" color="#6d5d4b"
+                material="metalness: 0.5; roughness: 0.3"></a-box>
+            <a-box id="skylight-grid-h3" position="0 4.92 0.5" width="14" height="0.12" depth="0.12" color="#6d5d4b"
+                material="metalness: 0.5; roughness: 0.3"></a-box>
+
+            <!-- Vigas transversais -->
+            <a-box id="skylight-grid-v1" position="-4.5 4.92 -1" width="0.12" height="0.12" depth="6" color="#6d5d4b"
+                material="metalness: 0.5; roughness: 0.3"></a-box>
+            <a-box id="skylight-grid-v2" position="-1.5 4.92 -1" width="0.12" height="0.12" depth="6" color="#6d5d4b"
+                material="metalness: 0.5; roughness: 0.3"></a-box>
+            <a-box id="skylight-grid-v3" position="1.5 4.92 -1" width="0.12" height="0.12" depth="6" color="#6d5d4b"
+                material="metalness: 0.5; roughness: 0.3"></a-box>
+            <a-box id="skylight-grid-v4" position="4.5 4.92 -1" width="0.12" height="0.12" depth="6" color="#6d5d4b"
+                material="metalness: 0.5; roughness: 0.3"></a-box>
+        </a-entity>
+
+        <!-- Molduras decorativas nas paredes superiores -->
+        <a-box id="ceiling-molding-front" position="0 4.9 -9.85" width="20" height="0.15" depth="0.2" color="#8b7355"
+            material="metalness: 0.3; emissive: #6d5d4b; emissiveIntensity: 0.2"></a-box>
+        <a-box id="ceiling-back" position="0 5 6" width="20" height="0.2" depth="6" color="#f5f5dc" roughness="0.7"
+            material="emissive: #e8dcc7; emissiveIntensity: 0.1" geometry="depth: 7.31"></a-box>
+        <a-box id="ceiling-molding-left" position="-9.85 4.9 0" width="0.2" height="0.15" depth="20" color="#8b7355"
+            material="metalness: 0.3; emissive: #6d5d4b; emissiveIntensity: 0.2"></a-box>
+        <a-box id="ceiling-molding-right" position="9.85 4.9 0" width="0.2" height="0.15" depth="20" color="#8b7355"
+            material="metalness: 0.3; emissive: #6d5d4b; emissiveIntensity: 0.2"></a-box>
 
         <!-- Paredes -->
         <a-box id="wall-front" position="0 2.5 -10" width="20" height="5" depth="0.3" color="#e8dcc7" roughness="0.6"
-            shadow></a-box>
+            class="wall" shadow material="emissive: #4a3f35; emissiveIntensity: 0.1"></a-box>
         <!-- Moldura parede frontal -->
-        <a-box id="frame-front-top" position="0 4.8 -9.85" width="20" height="0.15" depth="0.1" color="#8b7355"></a-box>
-        <a-box id="frame-front-bottom" position="0 0.1 -9.85" width="20" height="0.15" depth="0.1"
-            color="#8b7355"></a-box>
+        <a-box id="frame-front-top" position="0 4.8 -9.85" width="20" height="0.2" depth="0.15" color="#8b7355"
+            class="wall" material="metalness: 0.3; emissive: #6d5d4b; emissiveIntensity: 0.2"></a-box>
+        <a-box id="frame-front-bottom" position="0 0.15 -9.85" width="20" height="0.3" depth="0.15" color="#6d5d4b"
+            class="wall" material="metalness: 0.2"></a-box>
+        <!-- Rodapé frontal -->
+        <a-box id="baseboard-front" position="0 0.05 -9.9" width="20" height="0.1" depth="0.2" color="#5a4a3a"
+            class="wall"></a-box>
 
         <a-box id="wall-left" position="-10 2.5 0" width="0.3" height="5" depth="20" color="#e8dcc7" roughness="0.6"
-            shadow></a-box>
+            class="wall" shadow material="emissive: #4a3f35; emissiveIntensity: 0.1"></a-box>
         <!-- Moldura parede esquerda -->
-        <a-box id="frame-left-top" position="-9.85 4.8 0" width="0.1" height="0.15" depth="20" color="#8b7355"></a-box>
+        <a-box id="frame-left-top" position="-9.85 4.8 0" width="0.15" height="0.2" depth="20" color="#8b7355"
+            class="wall" material="metalness: 0.3; emissive: #6d5d4b; emissiveIntensity: 0.2"></a-box>
+        <a-box id="frame-left-bottom" position="-9.85 0.15 0" width="0.15" height="0.3" depth="20" color="#6d5d4b"
+            class="wall" material="metalness: 0.2"></a-box>
+        <!-- Rodapé esquerdo -->
+        <a-box id="baseboard-left" position="-9.9 0.05 0" width="0.2" height="0.1" depth="20" color="#5a4a3a"
+            class="wall"></a-box>
 
         <a-box id="wall-right" position="10 2.5 0" width="0.3" height="5" depth="20" color="#e8dcc7" roughness="0.6"
-            shadow></a-box>
+            class="wall" shadow material="emissive: #4a3f35; emissiveIntensity: 0.1"></a-box>
         <!-- Moldura parede direita -->
-        <a-box id="frame-right-top" position="9.85 4.8 0" width="0.1" height="0.15" depth="20" color="#8b7355"></a-box>
+        <a-box id="frame-right-top" position="9.85 4.8 0" width="0.15" height="0.2" depth="20" color="#8b7355"
+            class="wall" material="metalness: 0.3; emissive: #6d5d4b; emissiveIntensity: 0.2"></a-box>
+        <a-box id="frame-right-bottom" position="9.85 0.15 0" width="0.15" height="0.3" depth="20" color="#6d5d4b"
+            class="wall" material="metalness: 0.2"></a-box>
+        <!-- Rodapé direito -->
+        <a-box id="baseboard-right" position="9.9 0.05 0" width="0.2" height="0.1" depth="20" color="#5a4a3a"
+            class="wall"></a-box>
+
+        <!-- Parede Traseira -->
+        <a-box id="wall-back" position="0 2.5 10" width="20" height="5" depth="0.3" color="#e8dcc7" roughness="0.6"
+            class="wall" shadow material="emissive: #4a3f35; emissiveIntensity: 0.1"></a-box>
+        <!-- Moldura parede traseira -->
+        <a-box id="frame-back-top" position="0 4.8 9.85" width="20" height="0.2" depth="0.15" color="#8b7355"
+            class="wall" material="metalness: 0.3; emissive: #6d5d4b; emissiveIntensity: 0.2"></a-box>
+        <a-box id="frame-back-bottom" position="0 0.15 9.85" width="20" height="0.3" depth="0.15" color="#6d5d4b"
+            class="wall" material="metalness: 0.2"></a-box>
+        <!-- Rodapé traseiro -->
+        <a-box id="baseboard-back" position="0 0.05 9.9" width="20" height="0.1" depth="0.2" color="#5a4a3a"
+            class="wall"></a-box>
+
+        <!-- Colunas Decorativas -->
+        <a-entity id="columns-container">
+            <!-- Coluna frontal esquerda -->
+            <a-cylinder position="-8 2.5 -9" radius="0.25" height="5" color="#c9b8a0"
+                material="metalness: 0.3; roughness: 0.5; emissive: #8b7355; emissiveIntensity: 0.1"
+                class="wall"></a-cylinder>
+            <a-cylinder position="-8 4.9 -9" radius="0.35" height="0.3" color="#8b7355"
+                material="metalness: 0.4; emissive: #6d5d4b; emissiveIntensity: 0.2" class="wall"></a-cylinder>
+            <a-cylinder position="-8 0.2 -9" radius="0.35" height="0.4" color="#8b7355" material="metalness: 0.4"
+                class="wall"></a-cylinder>
+
+            <!-- Coluna frontal direita -->
+            <a-cylinder position="8 2.5 -9" radius="0.25" height="5" color="#c9b8a0"
+                material="metalness: 0.3; roughness: 0.5; emissive: #8b7355; emissiveIntensity: 0.1"
+                class="wall"></a-cylinder>
+            <a-cylinder position="8 4.9 -9" radius="0.35" height="0.3" color="#8b7355"
+                material="metalness: 0.4; emissive: #6d5d4b; emissiveIntensity: 0.2" class="wall"></a-cylinder>
+            <a-cylinder position="8 0.2 -9" radius="0.35" height="0.4" color="#8b7355" material="metalness: 0.4"
+                class="wall"></a-cylinder>
+
+            <!-- Coluna traseira esquerda -->
+            <a-cylinder position="-8 2.5 8" radius="0.25" height="5" color="#c9b8a0"
+                material="metalness: 0.3; roughness: 0.5; emissive: #8b7355; emissiveIntensity: 0.1"
+                class="wall"></a-cylinder>
+            <a-cylinder position="-8 4.9 8" radius="0.35" height="0.3" color="#8b7355"
+                material="metalness: 0.4; emissive: #6d5d4b; emissiveIntensity: 0.2" class="wall"></a-cylinder>
+            <a-cylinder position="-8 0.2 8" radius="0.35" height="0.4" color="#8b7355" material="metalness: 0.4"
+                class="wall"></a-cylinder>
+
+            <!-- Coluna traseira direita -->
+            <a-cylinder position="8 2.5 8" radius="0.25" height="5" color="#c9b8a0"
+                material="metalness: 0.3; roughness: 0.5; emissive: #8b7355; emissiveIntensity: 0.1"
+                class="wall"></a-cylinder>
+            <a-cylinder position="8 4.9 8" radius="0.35" height="0.3" color="#8b7355"
+                material="metalness: 0.4; emissive: #6d5d4b; emissiveIntensity: 0.2" class="wall"></a-cylinder>
+            <a-cylinder position="8 0.2 8" radius="0.35" height="0.4" color="#8b7355" material="metalness: 0.4"
+                class="wall"></a-cylinder>
+        </a-entity>
 
         <!-- Pinturas Decorativas -->
         <a-entity id="paintings-container">
@@ -224,11 +390,15 @@
             <!-- Hubble -->
             <a-entity id="hubble" position="-5 0 -5">
                 <a-box id="hubble-pedestal-base" position="0 0.5 0" width="1.2" height="1" depth="1.2" color="#34495e"
-                    roughness="0.4" rotation="0 -45 0"></a-box>
+                    roughness="0.4" rotation="0 -45 0" material="emissive: #1a252f; emissiveIntensity: 0.2"></a-box>
                 <a-box id="hubble-pedestal-mid" position="0 1.05 0" width="1.25" height="0.1" depth="1.25"
-                    color="#2c3e50" roughness="0.3" rotation="0 -45 0"></a-box>
+                    color="#2c3e50" roughness="0.3" rotation="0 -45 0"
+                    material="emissive: #1e2a36; emissiveIntensity: 0.3"></a-box>
                 <a-box id="hubble-pedestal-top" position="0 1.2 0" width="1" height="0.15" depth="1" color="#5d6d7e"
-                    roughness="0.2" metalness="0.3" rotation="0 -45 0"></a-box>
+                    roughness="0.2" metalness="0.5" rotation="0 -45 0"
+                    material="emissive: #3d4d5e; emissiveIntensity: 0.4"></a-box>
+                <!-- Luz no pedestal -->
+                <a-light type="point" intensity="0.3" position="0 1.3 0" color="#7ec0ee" distance="2"></a-light>
 
                 <a-entity id="hubble-model-entity" gltf-model="#hubble-model" position="0 2 0"
                     scale="0.0003 0.0003 0.0003" class="clickable exhibit-model" data-exhibit-id="hubble" cursor-hover
@@ -246,17 +416,19 @@
                         billboard="" scale="0.5 0.5 0.5" material="" geometry="" rotation="0 45 0"></a-image>
                     <a-entity id="infoPanelContainer1"></a-entity>
                 </a-entity>
+
             </a-entity>
 
             <!-- JWST -->
             <a-entity id="jwst" position="0 0 -5">
                 <a-box id="jwst-pedestal-base" position="0 0.5 0" width="1.2" height="1" depth="1.2" color="#34495e"
-                    roughness="0.4" shadow></a-box>
+                    roughness="0.4" material="emissive: #1a252f; emissiveIntensity: 0.2"></a-box>
                 <a-box id="jwst-pedestal-mid" position="0 1.05 0" width="1.25" height="0.1" depth="1.25" color="#2c3e50"
-                    roughness="0.3"></a-box>
+                    roughness="0.3" material="emissive: #1e2a36; emissiveIntensity: 0.3"></a-box>
                 <a-box id="jwst-pedestal-top" position="0 1.2 0" width="1" height="0.15" depth="1" color="#5d6d7e"
-                    roughness="0.2" metalness="0.3"></a-box>
-
+                    roughness="0.2" metalness="0.5" material="emissive: #3d4d5e; emissiveIntensity: 0.4"></a-box>
+                <!-- Luz no pedestal -->
+                <a-light type="point" intensity="0.3" position="0 1.3 0" color="#ffa500" distance="2"></a-light>
                 <a-entity id="jwst-model-entity" gltf-model="#jwst-model" position="0 2 0" scale="0.05 0.05 0.05"
                     class="clickable exhibit-model" data-exhibit-id="jwst" cursor-hover
                     animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"></a-entity>
@@ -276,12 +448,15 @@
             <!-- Saturn V -->
             <a-entity id="saturnv" position="5 0 -5">
                 <a-box id="saturnv-pedestal-base" position="0 0.5 0" width="1.2" height="1" depth="1.2" color="#34495e"
-                    roughness="0.4" rotation="0 45 0"></a-box>
+                    roughness="0.4" rotation="0 45 0" material="emissive: #1a252f; emissiveIntensity: 0.2"></a-box>
                 <a-box id="saturnv-pedestal-mid" position="0 1.05 0" width="1.25" height="0.1" depth="1.25"
-                    color="#2c3e50" roughness="0.3" rotation="0 45 0"></a-box>
+                    color="#2c3e50" roughness="0.3" rotation="0 45 0"
+                    material="emissive: #1e2a36; emissiveIntensity: 0.3"></a-box>
                 <a-box id="saturnv-pedestal-top" position="0 1.2 0" width="1" height="0.15" depth="1" color="#5d6d7e"
-                    roughness="0.2" metalness="0.3" rotation="0 45 0"></a-box>
-
+                    roughness="0.2" metalness="0.5" rotation="0 45 0"
+                    material="emissive: #3d4d5e; emissiveIntensity: 0.4"></a-box>
+                <!-- Luz no pedestal -->
+                <a-light type="point" intensity="0.3" position="0 1.3 0" color="#90ee90" distance="2"></a-light>
                 <a-entity id="saturnv-model-entity" gltf-model="#saturnv-model" position="0 2 0" scale="0.2 0.2 0.2"
                     class="clickable exhibit-model" data-exhibit-id="saturnv" cursor-hover
                     animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"></a-entity>
@@ -304,12 +479,13 @@
             <!-- ISS -->
             <a-entity id="iss" position="-5 0 0">
                 <a-box id="iss-pedestal-base" position="0 0.5 0" width="1.2" height="1" depth="1.2" color="#34495e"
-                    roughness="0.4" shadow></a-box>
+                    roughness="0.4" material="emissive: #1a252f; emissiveIntensity: 0.2"></a-box>
                 <a-box id="iss-pedestal-mid" position="0 1.05 0" width="1.25" height="0.1" depth="1.25" color="#2c3e50"
-                    roughness="0.3"></a-box>
+                    roughness="0.3" material="emissive: #1e2a36; emissiveIntensity: 0.3"></a-box>
                 <a-box id="iss-pedestal-top" position="0 1.2 0" width="1" height="0.15" depth="1" color="#5d6d7e"
-                    roughness="0.2" metalness="0.3"></a-box>
-
+                    roughness="0.2" metalness="0.5" material="emissive: #3d4d5e; emissiveIntensity: 0.4"></a-box>
+                <!-- Luz no pedestal -->
+                <a-light type="point" intensity="0.3" position="0 1.3 0" color="#ff6347" distance="2"></a-light>
                 <a-entity id="iss-model-entity" gltf-model="#iss-model" position="0 2 0" scale="0.1 0.1 0.1"
                     class="clickable exhibit-model" data-exhibit-id="iss" cursor-hover
                     animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"></a-entity>
@@ -329,12 +505,13 @@
             <!-- Voyager -->
             <a-entity id="voyager" position="5 0 0">
                 <a-box id="voyager-pedestal-base" position="0 0.5 0" width="1.2" height="1" depth="1.2" color="#34495e"
-                    roughness="0.4" shadow></a-box>
+                    roughness="0.4" material="emissive: #1a252f; emissiveIntensity: 0.2"></a-box>
                 <a-box id="voyager-pedestal-mid" position="0 1.05 0" width="1.25" height="0.1" depth="1.25"
-                    color="#2c3e50" roughness="0.3"></a-box>
+                    color="#2c3e50" roughness="0.3" material="emissive: #1e2a36; emissiveIntensity: 0.3"></a-box>
                 <a-box id="voyager-pedestal-top" position="0 1.2 0" width="1" height="0.15" depth="1" color="#5d6d7e"
-                    roughness="0.2" metalness="0.3"></a-box>
-
+                    roughness="0.2" metalness="0.5" material="emissive: #3d4d5e; emissiveIntensity: 0.4"></a-box>
+                <!-- Luz no pedestal -->
+                <a-light type="point" intensity="0.3" position="0 1.3 0" color="#da70d6" distance="2"></a-light>
                 <a-entity id="voyager-model-entity" gltf-model="#voyager-model" position="0 2 0" scale="0.15 0.15 0.15"
                     class="clickable exhibit-model" data-exhibit-id="voyager" rotation="0 0 45" cursor-hover
                     animation="property: rotation; to: 0 360 45; loop: true; dur: 10000; easing: linear"></a-entity>
@@ -352,12 +529,11 @@
 
             </a-entity>
         </a-entity>
-        </a-entity>
 
 
 
 
-        </a-entity>
+
     </a-scene>
 
     <script>
@@ -406,34 +582,8 @@
         };
 
         function navegarParaCena2(modelType) {
-            // Map com escala e rotação de cada modelo
-            const modelConfigs = {
-                'hubble': {
-                    scale: '0.0005 0.0005 0.0005',
-                    rotation: '0 0 0'
-                },
-                'jwst': {
-                    scale: '0.05 0.05 0.05',
-                    rotation: '0 0 0'
-                },
-                'saturnv': {
-                    scale: '0.2 0.2 0.2',
-                    rotation: '0 0 0'
-                },
-                'iss': {
-                    scale: '0.1 0.1 0.1',
-                    rotation: '0 0 0'
-                },
-                'voyager': {
-                    scale: '0.15 0.15 0.15',
-                    // rotation: '0 0 45'
-                    rotation: '0 0 45'
-                }
-            };
-
             // Armazena a informação no sessionStorage
             sessionStorage.setItem('modeloExibicao', modelType);
-            sessionStorage.setItem('modeloConfig', JSON.stringify(modelConfigs[modelType]));
 
             // Aplica fade out
             document.body.style.opacity = '0';
@@ -442,6 +592,8 @@
                 window.location.href = 'scene02.html';
             }, 500);
         }
+
+
     </script>
 </body>
 
