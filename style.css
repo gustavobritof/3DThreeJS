@@ -1,0 +1,105 @@
+/* RESET BÁSICO */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0b0f14;
+    overflow: hidden;
+}
+
+/* CONTAINER PRINCIPAL */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* CANVAS */
+#canvas {
+
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center,
+            #0e1622 0%,
+            #070a10 60%,
+            #04060a 100%);
+}
+
+/* OVERLAY DE TEXTO */
+.overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    /* canvas continua interativo */
+    text-align: center;
+    color: #e6f0ff;
+}
+
+/* TÍTULO */
+.overlay h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    letter-spacing: 0.25em;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+/* SUBTÍTULO */
+.overlay p {
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    opacity: 0.75;
+    margin-bottom: 2.5rem;
+}
+
+/* BOTÃO */
+#enter, #credits {
+    pointer-events: all;
+    padding: 1rem 3rem;
+    font-size: 0.9rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    background: transparent;
+    color: #e6f0ff;
+    border: 1px solid rgba(230, 240, 255, 0.4);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(6px);
+}
+
+/* HOVER DO BOTÃO */
+#enter:hover, #credits:hover {
+    background: rgba(230, 240, 255, 0.08);
+    border-color: rgba(230, 240, 255, 0.8);
+    box-shadow: 0 0 20px rgba(150, 200, 255, 0.25);
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+    .overlay h1 {
+        letter-spacing: 0.15em;
+    }
+
+    #enter, #credits {
+        padding: 0.9rem 2.2rem;
+    }
+}
+
+/* WRAPPER DOS BOTÕES */
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
