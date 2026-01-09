@@ -11,15 +11,98 @@
     <script src="sceneManager.js"></script>
     <script
         src="https://cdn.jsdelivr.net/gh/c-frame/aframe-particle-system-component@1.2.0/dist/aframe-particle-system-component.min.js"></script>
+
+    <script src="https://cdn.rawgit.com/mrturck/aframe-joystick/master/joystick.min.js"></script>
     <style>
         body {
             margin: 0;
             overflow: hidden;
             transition: opacity 0.8s ease-in-out;
             opacity: 0;
-            /* Começa invisível para o fade-in do load */
             background-color: black;
-            /* Fundo preto ajuda na transição */
+        }
+
+        /* Joystick Limpo e Moderno - APENAS MOBILE */
+        #np {
+            display: none !important;
+            /* Escondido por padrão */
+            position: fixed !important;
+            width: 140px !important;
+            height: 140px !important;
+            left: 30px !important;
+            bottom: 30px !important;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05)) !important;
+            border: 3px solid rgba(255, 255, 255, 0.4) !important;
+            border-radius: 50% !important;
+            z-index: 20 !important;
+            touch-action: none !important;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5),
+                inset 0 0 20px rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(5px) !important;
+        }
+
+        /* Mostra APENAS em dispositivos móveis/touch */
+        @media (hover: none) and (pointer: coarse) {
+            #np {
+                display: block !important;
+            }
+        }
+
+        /* Também mostra em telas pequenas */
+        @media (max-width: 768px) {
+            #np {
+                display: block !important;
+            }
+        }
+
+        #np p {
+            display: none !important;
+        }
+
+        /* Cruz direcional */
+        #np::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            z-index: 1;
+        }
+
+        #np::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 2px;
+            height: 60%;
+            background: rgba(255, 255, 255, 0.2);
+            z-index: 1;
+        }
+
+        /* Estiliza todos os elementos do NippleJS */
+        #np>div,
+        [id^="nipple_0_"] {
+            background: linear-gradient(145deg, #ffffff, #e0e0e0) !important;
+            border: 2px solid rgba(255, 255, 255, 0.8) !important;
+            border-radius: 50% !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3),
+                inset 0 -2px 5px rgba(0, 0, 0, 0.2),
+                inset 0 2px 5px rgba(255, 255, 255, 0.5) !important;
+            z-index: 2 !important;
+        }
+
+        @media (max-width: 480px) {
+            #np {
+                width: 120px !important;
+                height: 120px !important;
+                left: 20px !important;
+                bottom: 20px !important;
+            }
         }
     </style>
     <link rel="stylesheet" href="screenloader.css">
@@ -80,7 +163,7 @@
         </div>
         <div class="progress-text" id="progress-text">0%</div>
     </div>
-    <a-scene id="scene01">
+    <a-scene id="scene01" joystick>
 
         <a-assets>
             <img id="skyTexture" src="/images/ceu-noturno-estrelado-azul-e-branco.jpg">
@@ -195,15 +278,20 @@
         <a-sky id="sky-main" src="#skyTexture"
             animation="property: rotation; to: 0 360 0; loop: true; dur: 365000; easing: linear"></a-sky>
 
-        <a-camera id="main-camera" wall-collision position="0 1.6 0" cursor="rayOrigin: mouse"
-            raycaster="objects: .clickable; far: 20" look-controls="magicWindowTrackingEnabled: false"
-            mobile-look-controls>
+
+
+        <a-camera id="camera" wall-collision position="0 1.6 0" cursor="rayOrigin: mouse"
+            raycaster="objects: .clickable; far: 20"
+            look-controls="pointerLockEnabled: true; reverseMouseDrag: false; touchEnabled: true"
+            wasd-controls="enabled: true" mobile-look-controls>
 
             <a-cursor color="#ffffff" fuse="true" fuse-timeout="2000"
                 animation__fusing="property: scale; startEvents: fusing; easing: easeInCubic; dur: 2000; from: 1 1 1; to: 0.1 0.1 0.1"
                 animation__mouseleave="property: scale; startEvents: mouseleave; easing: easeInCubic; dur: 200; to: 1 1 1"></a-cursor>
 
         </a-camera>
+
+
 
         <!-- Iluminação Geral -->
         <a-light id="ambient-light" type="ambient" color="#ffe8cc" intensity="0.3"></a-light>
@@ -735,7 +823,7 @@
                 this.touchStartY = 0;
                 this.isTouch = false;
 
-                // Desabilita completamente look-controls padrão APENAS no mobile
+                // Desabilita look-controls padrão APENAS no mobile
                 const lookControls = this.el.components['look-controls'];
                 if (lookControls) {
                     lookControls.pause();
@@ -751,8 +839,10 @@
             },
 
             onTouchStart: function (evt) {
-                // Ignora se tocar em elementos clicáveis
-                if (evt.target.classList && evt.target.classList.contains('clickable')) {
+                // Ignora se tocar no joystick ou em elementos clicáveis
+                if (evt.target.id === 'np' ||
+                    evt.target.closest('#np') ||
+                    (evt.target.classList && evt.target.classList.contains('clickable'))) {
                     return;
                 }
 
@@ -764,7 +854,6 @@
             onTouchMove: function (evt) {
                 if (!this.isTouch) return;
 
-                // Previne scroll da página
                 evt.preventDefault();
 
                 const deltaX = evt.touches[0].clientX - this.touchStartX;
@@ -799,7 +888,10 @@
         });
     </script>
 
-
+    <!-- Joystick Virtual -->
+    <div id="mobile-joystick">
+        <div id="joystick-inner"></div>
+    </div>
 </body>
 
 </html>
