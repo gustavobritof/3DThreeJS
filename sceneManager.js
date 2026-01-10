@@ -24,29 +24,48 @@ window.addEventListener('load', () => {
 AFRAME.registerComponent('cursor-hover', {
     schema: {
         cursorColor: { type: 'string', default: 'green' },
-        originalColor: { type: 'string', default: 'black' }
+        originalColor: { type: 'string', default: 'white' }
     },
     init: function () {
         const cursor = document.querySelector('a-cursor');
+        if (!cursor) return;
+
         const hoverColor = this.data.cursorColor;
+        const originalColor = this.data.originalColor;
+
+        // Garante que o elemento captura eventos
+        this.el.classList.add('clickable');
+
+        // Desabilita raycast nos filhos para evitar conflito
+        this.el.querySelectorAll('*').forEach(child => {
+            if (child.classList && !child.classList.contains('clickable')) {
+                child.setAttribute('raycastable', 'false');
+            }
+        });
 
         this.el.addEventListener('mouseenter', () => {
             cursor.setAttribute('color', hoverColor);
-            cursor.setAttribute('radiusInner', '0.005');
-            cursor.setAttribute('radiusOuter', '0.015');
+            cursor.setAttribute('scale', '1.2 1.2 1.2'); // Feedback visual extra
         });
 
         this.el.addEventListener('mouseleave', () => {
-            cursor.setAttribute('color', this.data.originalColor);
-            cursor.setAttribute('radiusInner', '0.003');
-            cursor.setAttribute('radiusOuter', '0.01');
+            cursor.setAttribute('color', originalColor);
+            cursor.setAttribute('scale', '1 1 1');
+        });
+
+        // Mantém hover mesmo com movimento
+        this.el.addEventListener('raycaster-intersected', () => {
+            cursor.setAttribute('color', hoverColor);
+        });
+
+        this.el.addEventListener('raycaster-intersected-cleared', () => {
+            cursor.setAttribute('color', originalColor);
         });
     }
-
 });
 
 
-
+// Componente para detecção de colisão com paredes
 AFRAME.registerComponent('wall-collision', {
     schema: {
         radius: { type: 'number', default: 0.5 } // Raio de colisão do jogador
@@ -123,7 +142,7 @@ AFRAME.registerComponent('wall-collision', {
     }
 });
 
-
+// Loader personalizado com barra de progresso
 window.addEventListener('load', () => {
     // Gera estrelas aleatórias
     const starsContainer = document.querySelector('.stars');
@@ -183,7 +202,7 @@ window.addEventListener('load', () => {
     }, 8000);
 });
 
-
+// Componente para links VR com fuse
 AFRAME.registerComponent('vr-link', {
     schema: {
         href: { type: 'string' },
@@ -240,7 +259,7 @@ AFRAME.registerComponent('vr-link', {
     }
 });
 
-
+// Shader personalizado para portal circular
 AFRAME.registerShader('portal', {
     schema: {
         pano: { type: 'map', is: 'uniform' }
@@ -264,4 +283,88 @@ AFRAME.registerShader('portal', {
                 gl_FragColor = texture2D(pano, uv);
             }
             `
+});
+
+// Componente de controle de olhar personalizado para mobile
+AFRAME.registerComponent('mobile-look-controls', {
+    schema: {
+        sensitivity: { default: 0.3 }
+    },
+
+    init: function () {
+        // Só ativa no mobile
+        if (!AFRAME.utils.device.isMobile()) {
+            return; // Não faz nada no desktop
+        }
+
+        this.onTouchStart = this.onTouchStart.bind(this);
+        this.onTouchMove = this.onTouchMove.bind(this);
+        this.onTouchEnd = this.onTouchEnd.bind(this);
+
+        this.touchStartX = 0;
+        this.touchStartY = 0;
+        this.isTouch = false;
+
+        // Desabilita look-controls padrão APENAS no mobile
+        const lookControls = this.el.components['look-controls'];
+        if (lookControls) {
+            lookControls.pause();
+        }
+
+        this.el.sceneEl.addEventListener('enter-vr', () => {
+            if (lookControls) lookControls.pause();
+        });
+
+        window.addEventListener('touchstart', this.onTouchStart, { passive: false });
+        window.addEventListener('touchmove', this.onTouchMove, { passive: false });
+        window.addEventListener('touchend', this.onTouchEnd, { passive: false });
+    },
+
+    onTouchStart: function (evt) {
+        // Ignora se tocar no joystick ou em elementos clicáveis
+        if (evt.target.id === 'np' ||
+            evt.target.closest('#np') ||
+            (evt.target.classList && evt.target.classList.contains('clickable'))) {
+            return;
+        }
+
+        this.isTouch = true;
+        this.touchStartX = evt.touches[0].clientX;
+        this.touchStartY = evt.touches[0].clientY;
+    },
+
+    onTouchMove: function (evt) {
+        if (!this.isTouch) return;
+
+        evt.preventDefault();
+
+        const deltaX = evt.touches[0].clientX - this.touchStartX;
+        const deltaY = evt.touches[0].clientY - this.touchStartY;
+
+        const rotation = this.el.getAttribute('rotation');
+
+        // Rotação horizontal (Y axis)
+        rotation.y -= deltaX * this.data.sensitivity;
+
+        // Rotação vertical (X axis) com limites
+        rotation.x -= deltaY * this.data.sensitivity;
+        rotation.x = Math.max(-85, Math.min(85, rotation.x));
+
+        this.el.setAttribute('rotation', rotation);
+
+        this.touchStartX = evt.touches[0].clientX;
+        this.touchStartY = evt.touches[0].clientY;
+    },
+
+    onTouchEnd: function (evt) {
+        this.isTouch = false;
+    },
+
+    remove: function () {
+        if (AFRAME.utils.device.isMobile()) {
+            window.removeEventListener('touchstart', this.onTouchStart);
+            window.removeEventListener('touchmove', this.onTouchMove);
+            window.removeEventListener('touchend', this.onTouchEnd);
+        }
+    }
 });

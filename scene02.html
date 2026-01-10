@@ -8,6 +8,7 @@
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="sceneManager.js"></script>
     <link rel="stylesheet" href="screenloader.css">
+    <script src="https://cdn.rawgit.com/mrturck/aframe-joystick/master/joystick.min.js"></script>
     <!-- Componente para texto curvo -->
     <script>
         // Componente de transição com singularidade
@@ -199,7 +200,7 @@
         </div>
     </div>
 
-    <a-scene id="scene02">
+    <a-scene id="scene02" joystick>
         <a-assets>
             <img id="singularity-texture" src="/assets/singularity.jpg">
             <a-asset-item id="hubble-asset" src="models/hubble.glb"></a-asset-item>
@@ -212,7 +213,7 @@
             <img src="images/ceu-noturno-estrelado-azul-e-branco.jpg" id="sky">
             <img id="hotspot-img" src="images/HotspotIcon.png">
             <img id="crossIcon" src="https://img.icons8.com/?size=100&id=43925&format=png&color=FFFFFF" alt="Fechar">
-
+            <img id="360scene01" src="images/360scene01.png" alt="Cena1 360 Graus">
             <!-- Template do painel 3D -->
             <template id="infoPanel3D">
 
@@ -242,9 +243,10 @@
         </a-assets>
 
 
-        <a-camera position="0 1.6 0" cursor="rayOrigin: mouse" raycaster="objects: .clickable; far: 20"
-            look-controls="magicWindowTrackingEnabled: false; touchEnabled: true;">
-            <a-cursor color="#ffffff" fuse="true" fuse-timeout="2000"
+        <a-camera position="0 1.6 0" cursor="rayOrigin: mouse" id="camera" raycaster="objects: .clickable; far: 20"
+            look-controls="pointerLockEnabled: true; reverseMouseDrag: false; touchEnabled: true; magicWindowTrackingEnabled: false;"
+            wasd-controls="enabled: true" mobile-look-controls wall-collision>
+            <a-cursor color="#ffffff" fuse="false" fuse-timeout="2000"
                 animation__fusing="property: scale; startEvents: fusing; easing: easeInCubic; dur: 2000; from: 1 1 1; to: 0.1 0.1 0.1"
                 animation__mouseleave="property: scale; startEvents: mouseleave; easing: easeInCubic; dur: 200; to: 1 1 1"></a-cursor>
         </a-camera>
@@ -359,7 +361,7 @@
         <a-entity position="0 2.5 -1.79" rotation="0 -160 0" id="CurvedFuturo"
             curved-text="value: FUTURO; radius: 4.75; arc: 30; ; fontSize: 0.25"></a-entity>
 
-        <a-entity position="-2.9 1.6 -5.5" rotation="0 45 0" id="portal">
+        <a-entity position="-2.9 1.8 -5.5" rotation="0 -145 0" id="portal" scale="0.8 0.8 0.8">
 
             <!-- Anéis orbitantes ao redor do portal - Buraco Negro -->
             <!-- Anel externo - disco de acreção -->
@@ -395,20 +397,20 @@
             </a-light>
 
             <a-circle radius="1" class="clickable" segments="64" vr-link="href: scene01.html"
-                material="shader: portal; pano: #skyTexture; side: double">
+                material="shader: portal; pano: #360scene01; side: double">
             </a-circle>
 
             <!-- Placa de informação estilizada -->
-            <a-entity position="-3 0 -0.05" rotation="0 180 0">
-                <a-plane color="#1a1a1a" width="3" height="0.4"
-                    material="opacity: 0.9; emissive: #2a2a2a; emissiveIntensity: 0.3"
-                    animation="property: material.emissiveIntensity; from: 0.2; to: 0.4; loop: true; dur: 2000; dir: alternate; easing: easeInOutSine">
+            <a-entity position="-0.0142 -1.36684 -0.21126" rotation="0 180 0">
+                <a-plane color="#1a1a1a" width="2.3" height="0.4"
+                    material="opacity: 0.9; emissive: #2a2a2a; emissiveIntensity: 0.392"
+                    animation="property: material.emissiveIntensity; from: 0.2; to: 0.4; loop: true; dur: 2000; dir: alternate; easing: easeInOutSine"
+                    geometry="">
                 </a-plane>
-                <!-- Borda da placa -->
 
-                <a-text value=" <- Voltar p/ Tela Inicial" align="right" position="0 0 0.01" width="3" color="#FFFFFF"
-                    font="roboto">
-                </a-text>
+                <a-text value="Voltar para sala 01" align="center" position="0 0 0.01" width="3" color="#FFFFFF"
+                    font="roboto"></a-text>
+
             </a-entity>
 
         </a-entity>
