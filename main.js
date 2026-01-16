@@ -7,7 +7,6 @@ canvas.height = window.innerHeight;
 let points = [];
 let start = Date.now();
 
-// CONFIG VISUAL (aqui você cria identidade)
 const POINT_RADIUS = 2;
 const FLOAT_AMPL = 7;
 const LINK_DIST = 70;
@@ -32,14 +31,12 @@ function extractPoints(svgText) {
         }
     });
 
-    // Escala proporcional ao canvas
     return scalePoints(pts);
 }
 
 function scalePoints(points) {
     if (points.length === 0) return points;
 
-    // Encontra limites do SVG
     const minX = Math.min(...points.map(p => p.x));
     const minY = Math.min(...points.map(p => p.y));
     const maxX = Math.max(...points.map(p => p.x));
@@ -48,11 +45,9 @@ function scalePoints(points) {
     const svgWidth = maxX - minX;
     const svgHeight = maxY - minY;
 
-    // Define o tamanho máximo (80% do canvas para deixar margem)
     const maxSize = Math.min(canvas.width, canvas.height) * 0.4;
     const scale = maxSize / Math.max(svgWidth, svgHeight);
 
-    // Centraliza no canvas
     const offsetX = (canvas.width - svgWidth * scale) / 2;
     const offsetY = (canvas.height - svgHeight * scale) / 2;
 
@@ -96,7 +91,6 @@ function draw() {
     requestAnimationFrame(draw);
 }
 
-// 👇 troque o SVG conforme a ideia
 loadSVG("assets/earth-12-svgrepo-com.svg").then(draw);
 
 document.getElementById("enter").onclick = () => {

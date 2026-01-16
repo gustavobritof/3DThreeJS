@@ -150,10 +150,8 @@
     </div>
 
     <script>
-        // Recupera o modelo selecionado
         const modeloAtual = sessionStorage.getItem('modeloExibicao') || 'hubble';
 
-        // Carrega o conteúdo do JSON
         fetch('conteudoTematico.json')
             .then(response => response.json())
             .then(data => {
