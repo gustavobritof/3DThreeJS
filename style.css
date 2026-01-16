@@ -22,18 +22,19 @@ html, body {
 
 /* CANVAS */
 #canvas {
-
+    position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     background: radial-gradient(circle at center,
-            #0e1622 0%,
-            #070a10 60%,
-            #04060a 100%);
+            #000000 0%,
+            #0b1122 60%,
+            #060f20 100%);
 }
 
 /* OVERLAY DE TEXTO */
 .overlay {
+    width: 100%;
     position: absolute;
     inset: 0;
     display: flex;
@@ -44,15 +45,19 @@ html, body {
     /* canvas continua interativo */
     text-align: center;
     color: #e6f0ff;
+    background: rgba(8, 12, 20, 0.5);
 }
 
 /* TÍTULO */
 .overlay h1 {
     font-size: clamp(2.5rem, 6vw, 4.5rem);
-    letter-spacing: 0.25em;
+    letter-spacing: 0.5em;
+
     font-weight: 500;
     margin-bottom: 1rem;
     text-transform: uppercase;
+    text-indent: 0.5em;
+
 }
 
 /* SUBTÍTULO */
@@ -86,14 +91,32 @@ html, body {
     box-shadow: 0 0 20px rgba(150, 200, 255, 0.25);
 }
 
-/* RESPONSIVO */
 @media (max-width: 768px) {
     .overlay h1 {
-        letter-spacing: 0.15em;
+        letter-spacing: 0.3em;
+        text-indent: 0.3em;
+        font-size: clamp(2.5rem, 8vw, 4rem);
+        /* Aumentado */
+    }
+
+    .overlay p {
+        font-size: 0.9rem;
+        /* Aumentado de 0.75rem */
+        letter-spacing: 0.1em;
+        margin-bottom: 2rem;
+        /* Aumentado */
+        padding: 0 1.5rem;
     }
 
     #enter, #credits {
-        padding: 0.9rem 2.2rem;
+        padding: 1rem 2.5rem;
+        /* Aumentado */
+        font-size: 0.85rem;
+        /* Aumentado */
+    }
+
+    .wrapper {
+        gap: 1rem;
     }
 }
 

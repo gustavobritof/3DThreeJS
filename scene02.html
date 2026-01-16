@@ -4,11 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Museu Espacial VR</title>
+    <title>Exposição ECOS</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="sceneManager.js"></script>
     <link rel="stylesheet" href="screenloader.css">
     <script src="https://cdn.rawgit.com/mrturck/aframe-joystick/master/joystick.min.js"></script>
+    <link rel="icon" type="image/png" href="assets/earthIcon.png">
     <!-- Componente para texto curvo -->
     <script>
         // Componente de transição com singularidade
@@ -200,11 +201,11 @@
         </div>
     </div>
 
-    <a-scene id="scene02" joystick>
+    <a-scene id="scene02" joystick xr-mode-ui="enabled: false">
         <a-assets>
             <img id="singularity-texture" src="/assets/singularity.jpg">
             <a-asset-item id="hubble-asset" src="models/hubble.glb"></a-asset-item>
-            <a-asset-item id="voyager-asset" src="models/Voyager 1.glb"></a-asset-item>
+            <a-asset-item id="voyager-asset" src="models/Voyager1.glb"></a-asset-item>
             <a-asset-item id="jwst-asset" src="models/jwst_james_webb_space_telescope.glb"></a-asset-item>
             <a-asset-item id="saturnv-asset" src="models/saturnV.glb"></a-asset-item>
             <a-asset-item id="iss-asset" src="models/ISS_Correct.glb"></a-asset-item>
@@ -212,7 +213,7 @@
 
             <img src="images/ceu-noturno-estrelado-azul-e-branco.jpg" id="sky">
             <img id="hotspot-img" src="images/HotspotIcon.png">
-            <img id="crossIcon" src="https://img.icons8.com/?size=100&id=43925&format=png&color=FFFFFF" alt="Fechar">
+            <img id="crossIcon" src="assets/cancel.png" alt="Fechar">
             <img id="360scene01" src="images/360scene01.png" alt="Cena1 360 Graus">
             <!-- Template do painel 3D -->
             <template id="infoPanel3D">

@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Museu Espacial VR</title>
+    <title>Exposição ECOS</title>
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script
         src="https://unpkg.com/aframe-particle-system-component@1.1.5/dist/aframe-particle-system-component.min.js"></script>
     <script src="sceneManager.js"></script>
     <script
         src="https://cdn.jsdelivr.net/gh/c-frame/aframe-particle-system-component@1.2.0/dist/aframe-particle-system-component.min.js"></script>
-
+    <link rel="icon" type="image/png" href="assets/earthIcon.png">
     <script src="https://cdn.rawgit.com/mrturck/aframe-joystick/master/joystick.min.js"></script>
     <style>
         body {
@@ -163,19 +163,19 @@
         </div>
         <div class="progress-text" id="progress-text">0%</div>
     </div>
-    <a-scene id="scene01" joystick>
+    <a-scene id="scene01" joystick xr-mode-ui="enabled: false">
 
         <a-assets>
-            <img id="skyTexture" src="./images/ceu-noturno-estrelado-azul-e-branco.jpg">
+            <img id="skyTexture" src="images/ceu-noturno-estrelado-azul-e-branco.jpg">
 
-            <a-asset-item id="hubble-model" src="./models/hubble.glb"></a-asset-item>
-            <a-asset-item id="jwst-model" src="./models/jwst_james_webb_space_telescope.glb"></a-asset-item>
-            <a-asset-item id="saturnv-model" src="./models/saturnV.glb"></a-asset-item>
-            <a-asset-item id="iss-model" src="./models/ISS_Correct.glb"></a-asset-item>
-            <a-asset-item id="voyager-model" src="./models/voyager1.glb"></a-asset-item>
-
-            <img id="hotspot-img" src="./images/HotspotIcon.png">
-            <img id="backTexture" src="./assets/Panoramas/home.png">
+            <a-asset-item id="hubble-model" src="models/hubble.glb"></a-asset-item>
+            <a-asset-item id="jwst-model" src="models/jwst_james_webb_space_telescope.glb"></a-asset-item>
+            <a-asset-item id="saturnv-model" src="models/saturnV.glb"></a-asset-item>
+            <a-asset-item id="iss-model" src="models/ISS_Correct.glb"></a-asset-item>
+            <a-asset-item id="voyager-model" src="models/voyager1.glb"></a-asset-item>
+            <img id="hotspot-img" src="images/HotspotIcon.png">
+            <img id="backTexture" src="assets/Panoramas/home.png">
+            <img id="crossIcon" src="assets/cancel.png" alt="Fechar">
             <!-- TEMPLATE 1: HUBBLE -->
 
             <template id="infoPanel1">
@@ -333,7 +333,7 @@
                 <a-box id="ceiling-front" position="0 5 -7" width="20" height="0.2" depth="6" color="#f5f5dc"
                     roughness="0.7" material="emissive: #e8dcc7; emissiveIntensity: 0.1"></a-box>
                 <!-- Teto traseiro -->
-                <a-box id="ceiling-back" position="0 5 5" width="20" height="0.2" depth="8" color="#f5f5dc"
+                <a-box id="ceiling-back" position="0 5 6" width="20" height="0.2" depth="8" color="#f5f5dc"
                     roughness="0.7" material="emissive: #e8dcc7; emissiveIntensity: 0.1"></a-box>
                 <!-- Teto esquerdo -->
                 <a-box id="ceiling-left" position="-7 5 -1" width="6" height="0.2" depth="8" color="#f5f5dc"
@@ -528,7 +528,7 @@
                     <a-entity id="hubble-label-container" position="0.425 0.2 0.450" rotation="0 45 0">
                         <a-plane id="hubble-label-bg" position="0 0 0" width="1" height="0.3" color="#ecf0f1"
                             roughness="0.4"></a-plane>
-                        <a-text id="hubble-label-text" value=" Hubble" position="0 0 0" align="center" anchor="center"
+                        <a-text id="hubble-label-text" value="Hubble" position="0 0 0" align="center" anchor="center"
                             font="roboto" color="#2c3e50"></a-text>
                     </a-entity>
 
@@ -588,7 +588,7 @@
                     <a-entity id="saturnv-label-container" rotation="0 -45 0">
                         <a-plane id="saturnv-label-bg" position="0 0.2 0.61" width="1" height="0.3" color="#ecf0f1"
                             roughness="0.4"></a-plane>
-                        <a-text id="saturnv-label-text" value="🚀 Saturn V" position="0 0.2 0.61" align="center"
+                        <a-text id="saturnv-label-text" value="Saturn V" position="0 0.2 0.61" align="center"
                             anchor="center" color="#2c3e50"></a-text>
                     </a-entity>
 
@@ -616,7 +616,7 @@
 
                     <a-plane id="iss-label-bg" position="0.61 0.2 0" width="1" height="0.3" color="#ecf0f1"
                         roughness="0.4" rotation="0 90 0"></a-plane>
-                    <a-text id="iss-label-text" value="🌍 ISS" position="0.61 0.2 0" align="center" anchor="center"
+                    <a-text id="iss-label-text" value="ISS" position="0.61 0.2 0" align="center" anchor="center"
                         color="#2c3e50" rotation="0 90 0"></a-text>
 
                     <a-entity id="iss-hotspot-container" position="0.605 0.7 0.030" rotation="0 90 0">
@@ -644,7 +644,7 @@
 
                     <a-plane id="voyager-label-bg" position="-0.61 0.2 0" width="1" height="0.3" color="#ecf0f1"
                         roughness="0.4" rotation="0 -90 0"></a-plane>
-                    <a-text id="voyager-label-text" value="🛰️ Voyager" position="-0.61 0.2 0" align="center"
+                    <a-text id="voyager-label-text" value="Voyager" position="-0.61 0.2 0" align="center"
                         anchor="center" color="#2c3e50" rotation="0 -90 0"></a-text>
 
                     <a-entity id="voyager-hotspot-container" position="-0.610 0.7 0.030" rotation="0 -90 0">
@@ -660,7 +660,7 @@
         </a-entity>
 
 
-        <a-entity position="0 1.6 9.7">
+        <a-entity position="0 1.6 9.4">
 
             <!-- Anéis orbitantes ao redor do portal - Buraco Negro -->
             <!-- Anel externo - disco de acreção -->
@@ -707,7 +707,7 @@
                 </a-plane>
                 <!-- Borda da placa -->
 
-                <a-text value=" <- Voltar p/ Tela Inicial" align="right" position="0 0 0.01" width="3" color="#FFFFFF"
+                <a-text value=" <- Voltar para Tela Inicial" align="right" position="0 0 0.01" width="3" color="#FFFFFF"
                     font="roboto">
                 </a-text>
             </a-entity>
